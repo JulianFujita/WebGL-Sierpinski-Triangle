@@ -6,11 +6,7 @@ if(!gl){
 }
 
 // Create vertex data
-const vertexData = [
-    0, 1, 0,
-    1, -1, 0,
-    -1, -1, 0
-]
+const vertexData = getSierpinskiTriangleData([[-1,1,0],[0,-1,0],[1,1,0]],[0,0,0], 1000000);
 
 // Create a buffer on the GPU
 const buffer = gl.createBuffer()
@@ -25,6 +21,7 @@ gl.shaderSource(vertexShader, `
 attribute vec3 position;
 void main(){
     gl_Position = vec4(position, 1);
+    gl_PointSize = 1.0;
 }`)
 gl.compileShader(vertexShader)
 
@@ -53,4 +50,20 @@ gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0)
 
 // Draw
 gl.useProgram(program)
-gl.drawArrays(gl.TRIANGLES, 0, 3)
+gl.drawArrays(gl.POINTS, 0, vertexData.length)
+console.log(vertexData.length)
+
+// Create data for sierpinski triangle
+function getSierpinskiTriangleData(trianglePoints, randomPoint, iterations){
+    let vertices = []
+    let p = randomPoint
+
+    for(let i = 0; i < iterations; i++){
+        let t = trianglePoints[Math.floor(Math.random() * 3)]
+        let q = [(p[0] - t[0]) / 2, (p[1] - t[1]) / 2, 0]
+        vertices.push(q[0], q[1], 0)
+        p = q
+    }
+
+    return vertices
+}
